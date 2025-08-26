@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка файлов + Консоль</title>
+</head>
+<body>
+    <h1>Загрузка файлов</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Загрузить</button>
+    </form>
+
+    <h2>Файлы</h2>
+    <ul>
+        {% for f in files %}
+            <li><a href="/uploads/{{ f }}">{{ f }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Консоль (Linux)</h2>
+    <input id="cmd" placeholder="Введите команду">
+    <button onclick="runCmd()">Запустить</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function runCmd() {
+            const cmd = document.getElementById("cmd").value;
+            const res = await fetch("/exec", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cmd })
+            });
+            const data = await res.json();
+            document.getElementById("output").innerText = data.output || data.error;
+        }
+    </script>
+
+    <h2>Procfile</h2>
+    <button onclick="runProc()">Запустить Procfile</button>
+    <pre id="proc_out"></pre>
+
+    <script>
+        async function runProc() {
+            const res = await fetch("/procfile/run", { method: "POST" });
+            const data = await res.json();
+            document.getElementById("proc_out").innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
